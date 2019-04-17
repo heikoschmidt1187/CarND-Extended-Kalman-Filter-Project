@@ -41,7 +41,7 @@ int main() {
   vector<VectorXd> ground_truth;
 
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth]
-              (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
+              (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -53,14 +53,14 @@ int main() {
         auto j = json::parse(s);
 
         string event = j[0].get<string>();
-        
+
         if (event == "telemetry") {
           // j[1] is the data JSON object
           string sensor_measurement = j[1]["sensor_measurement"];
-          
+
           MeasurementPackage meas_package;
           std::istringstream iss(sensor_measurement);
-          
+
           long long timestamp;
 
           // reads first element from the current line
@@ -68,27 +68,27 @@ int main() {
           iss >> sensor_type;
 
           if (sensor_type.compare("L") == 0) {
-            meas_package.sensor_type_ = MeasurementPackage::LASER;
-            meas_package.raw_measurements_ = VectorXd(2);
+            meas_package.sensor_type = MeasurementPackage::LASER;
+            meas_package.raw_measurements = VectorXd(2);
             float px;
             float py;
             iss >> px;
             iss >> py;
-            meas_package.raw_measurements_ << px, py;
+            meas_package.raw_measurements << px, py;
             iss >> timestamp;
-            meas_package.timestamp_ = timestamp;
+            meas_package.timestamp = timestamp;
           } else if (sensor_type.compare("R") == 0) {
-            meas_package.sensor_type_ = MeasurementPackage::RADAR;
-            meas_package.raw_measurements_ = VectorXd(3);
+            meas_package.sensor_type = MeasurementPackage::RADAR;
+            meas_package.raw_measurements = VectorXd(3);
             float ro;
             float theta;
             float ro_dot;
             iss >> ro;
             iss >> theta;
             iss >> ro_dot;
-            meas_package.raw_measurements_ << ro,theta, ro_dot;
+            meas_package.raw_measurements << ro,theta, ro_dot;
             iss >> timestamp;
-            meas_package.timestamp_ = timestamp;
+            meas_package.timestamp = timestamp;
           }
 
           float x_gt;
@@ -102,29 +102,29 @@ int main() {
 
           VectorXd gt_values(4);
           gt_values(0) = x_gt;
-          gt_values(1) = y_gt; 
+          gt_values(1) = y_gt;
           gt_values(2) = vx_gt;
           gt_values(3) = vy_gt;
           ground_truth.push_back(gt_values);
-          
-          // Call ProcessMeasurement(meas_package) for Kalman filter
-          fusionEKF.ProcessMeasurement(meas_package);       
 
-          // Push the current estimated x,y positon from the Kalman filter's 
+          // Call ProcessMeasurement(meas_package) for Kalman filter
+          fusionEKF.ProcessMeasurement(meas_package);
+
+          // Push the current estimated x,y positon from the Kalman filter's
           //   state vector
 
           VectorXd estimate(4);
 
-          double p_x = fusionEKF.ekf_.x_(0);
-          double p_y = fusionEKF.ekf_.x_(1);
-          double v1  = fusionEKF.ekf_.x_(2);
-          double v2 = fusionEKF.ekf_.x_(3);
+          double p_x = fusionEKF.ekf.x(0);
+          double p_y = fusionEKF.ekf.x(1);
+          double v1  = fusionEKF.ekf.x(2);
+          double v2 = fusionEKF.ekf.x(3);
 
           estimate(0) = p_x;
           estimate(1) = p_y;
           estimate(2) = v1;
           estimate(3) = v2;
-        
+
           estimations.push_back(estimate);
 
           VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
@@ -154,7 +154,7 @@ int main() {
     std::cout << "Connected!!!" << std::endl;
   });
 
-  h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, 
+  h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code,
                          char *message, size_t length) {
     ws.close();
     std::cout << "Disconnected" << std::endl;
@@ -167,6 +167,6 @@ int main() {
     std::cerr << "Failed to listen to port" << std::endl;
     return -1;
   }
-  
+
   h.run();
 }

@@ -29,21 +29,21 @@ class FusionEKF {
   /**
    * Kalman Filter update and prediction math lives in here.
    */
-  KalmanFilter ekf_;
+  KalmanFilter ekf;
 
  private:
   // check whether the tracking toolbox was initialized or not (first measurement)
-  bool is_initialized_;
+  bool is_initialized;
 
   // previous timestamp
-  long long previous_timestamp_;
+  long long previous_timestamp;
 
   // tool object used to compute Jacobian and RMSE
   Tools tools;
-  Eigen::MatrixXd R_laser_;
-  Eigen::MatrixXd R_radar_;
-  Eigen::MatrixXd H_laser_;
-  Eigen::MatrixXd Hj_;
+  Eigen::MatrixXd R_laser;
+  Eigen::MatrixXd R_radar;
+  Eigen::MatrixXd H_laser;
+  Eigen::MatrixXd Hj;
 };
 
 #endif // FusionEKF_H_
