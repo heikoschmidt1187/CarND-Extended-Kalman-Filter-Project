@@ -76,5 +76,6 @@ void KalmanFilter::UpdateY(const Eigen::VectorXd& y) {
 
    // new state
    x = x + (K * y);
-   P = (MatrixXd::Identity(2, 2) - K * H) * P;
+   MatrixXd I = MatrixXd::Identity(x.size(), x.size());
+   P = (I - K * H) * P;
 }
