@@ -39,6 +39,14 @@ FusionEKF::FusionEKF() {
    H_laser << 1., 0., 0., 0.,
               0., 1., 0., 0.;
 
+    // create covariance matrix
+    ekf.P = MatrixXd(4, 4);
+    ekf.P <<  1., 0., 0., 0.,
+              0., 1., 0., 0.,
+              0., 0., 1000., 0.,
+              0., 0., 0., 1000.;
+
+
 }
 
 /**
@@ -63,12 +71,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf.x = VectorXd(4);
     ekf.x << 1., 1., 1., 1.;
 
-    // create covariance matrix
-    ekf.P = MatrixXd(4, 4);
-    ekf.P <<  1., 0., 0., 0.,
-              0., 1., 0., 0.,
-              0., 0., 1., 0.,
-              0., 0., 0., 1.;
+
 
     if (measurement_pack.sensor_type == MeasurementPackage::RADAR) {
       // TODO: Convert radar from polar to cartesian coordinates
@@ -80,11 +83,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float rho_dot = measurement_pack.raw_measurements[2];
 
       // convert polar to cartesian and take care not to create zero division
+      // according to tips and tricks section, vx/vy not applicable w/ radar
       ekf.x <<  std::min(rho * cos(phi), 0.0001),   // px
                 std::min(rho * sin(phi), 0.0001),   // py
-                rho_dot * cos(phi),                 // vx
-                rho_dot * sin(phi);                 // vy
-
+                0., // vx
+                0.; // vy
     }
     else if (measurement_pack.sensor_type == MeasurementPackage::LASER) {
       // TODO: Initialize state.
@@ -143,10 +146,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   // call predict function
   ekf.Predict();
-
-  /**
-   * Update
-   */
 
   /**
    * TODO:
