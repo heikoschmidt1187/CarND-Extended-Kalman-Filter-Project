@@ -39,14 +39,6 @@ FusionEKF::FusionEKF() {
    H_laser << 1., 0., 0., 0.,
               0., 1., 0., 0.;
 
-    // create covariance matrix
-    ekf.P = MatrixXd(4, 4);
-    ekf.P <<  1., 0., 0., 0.,
-              0., 1., 0., 0.,
-              0., 0., 1000., 0.,
-              0., 0., 0., 1000.;
-
-
 }
 
 /**
@@ -71,6 +63,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf.x = VectorXd(4);
     ekf.x << 1., 1., 1., 1.;
 
+    // create covariance matrix
+    ekf.P = MatrixXd(4, 4);
+    ekf.P <<  1., 0., 0., 0.,
+              0., 1., 0., 0.,
+              0., 0., 1000., 0.,
+              0., 0., 0., 1000.;
 
 
     if (measurement_pack.sensor_type == MeasurementPackage::RADAR) {
